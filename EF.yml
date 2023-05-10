@@ -1,0 +1,13 @@
+#Paquetes
+Microsoft.EntityFrameworkCore.Tools
+Microsoft.EntityFrameworkCore.SqlServer
+
+System.Data.SqlClient
+Microsoft.Extensions.Options
+
+
+#PorCompletar
+Scaffold-DbContext "" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Entity -force
+
+#Completa
+Scaffold-DbContext "Data Source=HOST;Initial Catalog=InLearning;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Entity
