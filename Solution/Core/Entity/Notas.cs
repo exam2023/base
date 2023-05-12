@@ -10,7 +10,10 @@ namespace Core.Entity
         public int IdCurso { get; set; }
         public int? Nota { get; set; }
 
-        public virtual Alumno IdAlumnoNavigation { get; set; } = null!;
-        public virtual Curso IdCursoNavigation { get; set; } = null!;
+        public string? Alumno { get; set; } = string.Empty;
+        public string? Curso { get; set; } = string.Empty;
+
+        public virtual Alumno? IdAlumnoNavigation { get; set; } = null!;
+        public virtual Curso? IdCursoNavigation { get; set; } = null!;
     }
 }

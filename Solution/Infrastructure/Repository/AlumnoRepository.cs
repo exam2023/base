@@ -15,8 +15,6 @@ namespace Infrastructure.Repository
             _conexion = conexion.Value;
         }
 
-
-
         public async Task<List<Alumno>> GetAll()
         {
             List<Alumno> lista = new List<Alumno>();
@@ -103,7 +101,7 @@ namespace Infrastructure.Repository
             cmd.Parameters.AddWithValue("@Direccion", entidad.Direccion);
             cmd.Parameters.AddWithValue("@Telefono", entidad.Telefono);
 
-            var newId = await cmd.ExecuteScalarAsync();
+           await cmd.ExecuteScalarAsync();
         }
 
         public async Task Delete(int id)

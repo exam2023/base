@@ -11,8 +11,8 @@ namespace Core.Entity
         }
 
         public int IdCurso { get; set; }
-        public string Nombre { get; set; } = null!;
-        public string Docente { get; set; } = null!;
+        public string? Nombre { get; set; } = null!;
+        public string? Docente { get; set; } = null!;
 
         public virtual ICollection<Notas> Nota { get; set; }
     }

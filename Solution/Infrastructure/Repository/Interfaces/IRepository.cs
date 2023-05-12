@@ -10,11 +10,8 @@ namespace Infrastructure.Repository.Interfaces
     {
         Task<List<T>> GetAll();
         Task<T> GetById(int id);
-
         Task Post(T entity);
-
         Task Update(T entity);
-
         Task Delete(int id);
     }
 }
