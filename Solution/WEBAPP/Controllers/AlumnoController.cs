@@ -1,7 +1,6 @@
 ﻿using Core.Entity;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using WEBAPP.Models;
 

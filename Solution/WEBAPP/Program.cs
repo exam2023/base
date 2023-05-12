@@ -16,7 +16,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.Configure<Conexion>(builder.Configuration.GetSection("ConnectionStrings"));
 builder.Services.AddScoped<IAlumnoRepository, AlumnoRepository>();
-//builder.Services.AddScoped<INotasRepository, NotasRepository>();
+builder.Services.AddScoped<INotasRepository, NotasRepository>();
+builder.Services.AddScoped<ICursoRepository, CursoRepository>();
 
 var app = builder.Build();
 

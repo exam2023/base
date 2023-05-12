@@ -1,55 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Core.Entity;
+using Infrastructure.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Core.Entity;
 
 namespace WEBAPP.Controllers
 {
     public class NotasController : Controller
     {
-        private readonly InLearningContext _context;
+        private readonly INotasRepository _repository;
+        private readonly IAlumnoRepository _Alumno;
+        private readonly ICursoRepository _Curso;
 
-        public NotasController(InLearningContext context)
+        public NotasController(INotasRepository repository, IAlumnoRepository Alumno, ICursoRepository Curso)
         {
-            _context = context;
+            _repository = repository;
+            _Alumno = Alumno;
+            _Curso = Curso; 
         }
 
         // GET: Notas
         public async Task<IActionResult> Index()
         {
-            var inLearningContext = _context.Nota.Include(n => n.IdAlumnoNavigation).Include(n => n.IdCursoNavigation);
-            return View(await inLearningContext.ToListAsync());
+            
+            return View(await _repository.GetAll());
         }
 
         // GET: Notas/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null || _context.Nota == null)
-            {
-                return NotFound();
-            }
+           var entity = await _repository.GetById(id);
+           if(entity == null) return NotFound();
 
-            var notas = await _context.Nota
-                .Include(n => n.IdAlumnoNavigation)
-                .Include(n => n.IdCursoNavigation)
-                .FirstOrDefaultAsync(m => m.IdNota == id);
-            if (notas == null)
-            {
-                return NotFound();
-            }
-
-            return View(notas);
+           return View(entity);
         }
 
         // GET: Notas/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["IdAlumno"] = new SelectList(_context.Alumnos, "IdAlumno", "IdAlumno");
-            ViewData["IdCurso"] = new SelectList(_context.Cursos, "IdCurso", "Docente");
+            ViewData["Alumnos"] = new SelectList(await _Alumno.GetAll(), "IdAlumno", "Nombres");
+            ViewData["Cursos"] = new SelectList(await _Curso.GetAll(), "IdCurso", "Nombre");
             return View();
         }
 
@@ -58,35 +47,23 @@ namespace WEBAPP.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdNota,IdAlumno,IdCurso,Nota")] Notas notas)
+        public async Task<IActionResult> Create([Bind("IdNota,IdAlumno,IdCurso,Nota")] Notas entity)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(notas);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["IdAlumno"] = new SelectList(_context.Alumnos, "IdAlumno", "IdAlumno", notas.IdAlumno);
-            ViewData["IdCurso"] = new SelectList(_context.Cursos, "IdCurso", "Docente", notas.IdCurso);
-            return View(notas);
+
+            await _repository.Post(entity);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Notas/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null || _context.Nota == null)
-            {
-                return NotFound();
-            }
+             var entity = await _repository.GetById(id);
+            if (entity == null) return NotFound();
 
-            var notas = await _context.Nota.FindAsync(id);
-            if (notas == null)
-            {
-                return NotFound();
-            }
-            ViewData["IdAlumno"] = new SelectList(_context.Alumnos, "IdAlumno", "IdAlumno", notas.IdAlumno);
-            ViewData["IdCurso"] = new SelectList(_context.Cursos, "IdCurso", "Docente", notas.IdCurso);
-            return View(notas);
+            ViewData["Alumnos"] = new SelectList(await _Alumno.GetAll(), "IdAlumno", "Nombres", entity.IdAlumno);
+            ViewData["Cursos"] = new SelectList(await _Curso.GetAll(), "IdCurso", "Nombre", entity.IdCurso);
+
+            return View(entity);
         }
 
         // POST: Notas/Edit/5
@@ -94,56 +71,27 @@ namespace WEBAPP.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdNota,IdAlumno,IdCurso,Nota")] Notas notas)
+        public async Task<IActionResult> Edit(int id, [Bind("IdNota,IdAlumno,IdCurso,Nota")] Notas entity)
         {
-            if (id != notas.IdNota)
-            {
-                return NotFound();
-            }
+            if (id != entity.IdNota) return NotFound();
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(notas);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!NotasExists(notas.IdNota))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _repository.Update(entity);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdAlumno"] = new SelectList(_context.Alumnos, "IdAlumno", "IdAlumno", notas.IdAlumno);
-            ViewData["IdCurso"] = new SelectList(_context.Cursos, "IdCurso", "Docente", notas.IdCurso);
-            return View(notas);
+
+            return View(entity);
         }
 
         // GET: Notas/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null || _context.Nota == null)
-            {
-                return NotFound();
-            }
+            var entity = await _repository.GetById(id);
+           if(entity == null) return NotFound();
 
-            var notas = await _context.Nota
-                .Include(n => n.IdAlumnoNavigation)
-                .Include(n => n.IdCursoNavigation)
-                .FirstOrDefaultAsync(m => m.IdNota == id);
-            if (notas == null)
-            {
-                return NotFound();
-            }
+           return View(entity);
 
-            return View(notas);
         }
 
         // POST: Notas/Delete/5
@@ -151,23 +99,10 @@ namespace WEBAPP.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Nota == null)
-            {
-                return Problem("Entity set 'InLearningContext.Nota'  is null.");
-            }
-            var notas = await _context.Nota.FindAsync(id);
-            if (notas != null)
-            {
-                _context.Nota.Remove(notas);
-            }
-            
-            await _context.SaveChangesAsync();
+            await _repository.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool NotasExists(int id)
-        {
-          return (_context.Nota?.Any(e => e.IdNota == id)).GetValueOrDefault();
-        }
+
     }
 }
